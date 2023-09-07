@@ -1,69 +1,80 @@
-import React, { useState, useEffect } from 'react';
-import { ToastContainer } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
-import { toast } from 'react-toastify';
-import { fetchImages } from '../helpers/ImagesFinderApi';
-import { Searchbar } from './Searchbar/Searchbar';
+import Searchbar from "./Searchbar/Searchbar";
+import { fetchImages, filterProperties } from '../helpers'
+import { useEffect, useState } from "react";
 
-import { ImageGallery } from './ImageGallery/ImageGallery';
-import { Button } from './Button/Button';
-import { Loader } from './Loader/Loader';
+import 'react-toastify/dist/ReactToastify.css';
+import { ToastContainer, toast } from "react-toastify";
+import ImageGallery from "./ImageGallery/ImageGallery";
+import Button from "./Button/Button";
+import Modal from "./Modal/Modal";
+import Loader from "./Loader/Loader";
+
 
 export const App = () => {
-  const [query, setQuery] = useState('');
-  const [images, setImages] = useState([]);
-  const [page, setPage] = useState(1);
-  const [totalHits, setTotalHits] = useState(0);
-  const [loading, setLoading] = useState(false);
- 
-  useEffect(() => {
-    if (!query) {
-      return;
-    }
+	const INITIAL_MODAL = {
+		isOpen: false,
+		src: '',
+		alt: ''
+	}
 
-    setLoading(true);
+	const [photos, setPhotos] = useState([])
+	const [query, setQuery] = useState('')
+	const [page, setPage] = useState(1)
+	const [error, setError] = useState('')
+	const [isLoading, setIsLoading] = useState(false)
+	const [modal, setModal] = useState(INITIAL_MODAL)
 
-    const fetchData = async () => {
-      const { hits, totalHits } = await fetchImages(query, page);
 
-      if (totalHits === 0) {
-        toast.error('Nothing was found for your request');
-        setLoading(false);
-        return;
-      }
+	useEffect(() => {
+		if (!query) {
+			<p className="lead">Write a word into the input</p>
+			return
+		}
+		(async () => {
+			try {
+				setIsLoading(true)
+				const { data: { hits, total } } = await fetchImages(query, page)
+				if (!total) {
+					toast.info('There is no photos with such word');
+				}
+				const filteredHits = filterProperties(hits)
+				setPhotos(prev => [...prev, ...filteredHits])
+			}
+			catch (error) { setError(error) }
+			finally {
+				setIsLoading(false)
+			}
+		})()
+	}, [query, page])
 
-      setImages(prevImages => (page === 1 ? hits : [...prevImages, ...hits]));
-      setTotalHits(prevTotalHits =>
-        page === 1 ? totalHits - hits.length : prevTotalHits - hits.length
-      );
-      setLoading(false);
-    };
+	const onSubmit = (query) => {
+		setQuery(query, page)
+		setPhotos([])
+	}
 
-    fetchData().catch(error => {
-      toast.error(`Oops! Something went wrong! ${error}`);
-      setLoading(false);
-    });
-  }, [page, query]);
+	const handleOpen = (src, alt) => {
+		setModal(() => ({ isOpen: true, src, alt }))
+	}
+	const handleClose = () => {
+		setModal(() => ({ isOpen: false, src: '', alt: '' }))
+	}
+	const handleLoadMore = () => {
+		setPage((prev) => prev + 1)
+	}
+	const showLoadMoreBtn = photos.length > 0 && !isLoading;
 
- 
-  const handleLoadMore = () => {
-     setPage(prevPage => prevPage + 1);
-  };
-
-  const handleQuerySubmit = query => {
-     setQuery(query);
-     setPage(1);
-  };
-
-  return (
-      <>
-        <Searchbar onSubmit={handleQuerySubmit} />
-        {images && <ImageGallery images={images} />}
-        {!!totalHits && <Button onLoadMore={handleLoadMore} />}
-        {loading && <Loader />}
-
-        <ToastContainer autoClose={2000} />
-      </>
-    );
-
-  }
+	return (
+		<>
+			<Searchbar onSubmit={onSubmit} />
+			{isLoading && <Loader />}
+			{photos.length !== 0 ? <ImageGallery images={photos} error={error} openFullScreenMode={handleOpen} /> : <p className="lead text-center">No Photos</p>}
+			{showLoadMoreBtn && <Button onClick={handleLoadMore} />}
+			{modal.isOpen && (
+				<Modal closeModal={handleClose}>
+					<img src={modal.src} alt={modal.alt} />
+				</Modal>
+			)}
+			<ToastContainer />
+		</>
+	);
+};

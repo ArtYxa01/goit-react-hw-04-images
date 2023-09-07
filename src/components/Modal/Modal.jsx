@@ -1,50 +1,32 @@
-import { useEffect } from 'react';
-import { createPortal } from 'react-dom';
-import PropTypes from 'prop-types';
-import { Overlay, ModalViewer, ModalImg } from './Modal.styled';
+import React, { useEffect } from 'react'
+import PropTypes from 'prop-types'
+import './modal.css'
 
-const modalRoot = document.querySelector('#modal-root');
+const Modal = ({ children, closeModal }) => {
+	useEffect(() => {
+		window.addEventListener('keydown', (e) => handleKeyPress(e));
 
-export const Modal = ({ closeModal, tags, modalImg }) => {
+		return () => window.removeEventListener('keydown', (e) => handleKeyPress(e));
+	})
 
-  
-
-  useEffect(() => {
-    const closeByEsc = e => {
-      if (e.code !== 'Escape') {
-        return;
-      }
-      closeModal();
-    };
-
-    window.addEventListener('keydown', closeByEsc);
-
-    return () => {
-      window.removeEventListener('keydown', closeByEsc);
-    };
-  }, [closeModal]);
-
-  const handleBackdropClick = e => {
-    if (e.currentTarget === e.target) {
-      closeModal();
-    }
-   
-  };
-        
-  return createPortal(
-    <Overlay onClick={handleBackdropClick}>
-      <ModalViewer>
-        <ModalImg src={modalImg} alt={tags} />
-      </ModalViewer>
-    </Overlay>,
-    modalRoot
-  );
-};
-
+	const handleKeyPress = e => {
+		if (e.key === 'Escape') {
+			closeModal();
+		}
+	};
+	return (
+		<>
+			<div className="backdrop" onClick={closeModal}>
+				<div className="modal-image-cur">
+					{children}
+				</div>
+			</div>
+		</>
+	);
+}
 
 Modal.propTypes = {
-  modalImg: PropTypes.string.isRequired,
-  closeModal: PropTypes.func.isRequired,
-  tags: PropTypes.string.isRequired,
-  // handleBackdropClick: PropTypes.func.isRequired,
+	closeModal: PropTypes.func.isRequired
 }
+
+export default Modal

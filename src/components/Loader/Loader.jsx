@@ -1,17 +1,13 @@
-import { ThreeDots } from 'react-loader-spinner';
+import React from 'react'
 
-export const Loader = () => {
-    return (
-        <>
-            <ThreeDots
-                height="80"
-                width="80"
-                radius="9"
-                color="#6a9bd8"
-                ariaLabel="three-dots-loading"
-                wrapperStyle={{ jusifyContent: "center" }}
-                visible="true"
-            />
-        </>
-    );
-};
+const Loader = props => {
+	return (
+		<div className="text-center">
+			<div className="spinner-grow" role="status">
+			</div>
+		</div>
+	)
+}
+
+
+export default Loader

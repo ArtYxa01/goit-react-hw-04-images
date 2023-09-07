@@ -1,36 +1,27 @@
-import React from 'react';
-import { ImageGalleryItem } from '../ImageGalleryItem/ImageGalleryItem';
-import PropTypes from 'prop-types';
-import { Gallery } from './ImageGallery.styled';
+import React from 'react'
+import PropTypes from 'prop-types'
+import ImageGalleryItem from 'components/ImageGalleryItem/ImageGalleryItem';
 
-export const ImageGallery = ({ images }) => {
-    return (
-        <Gallery>
-            {images.map(({ id, webformatURL, largeImageURL, tags }) => {
-                return (
-                    <ImageGalleryItem
-                        key={id}
-                        webformatURL={webformatURL}
-                        largeImageURL={largeImageURL}
-                        tags={tags}
-                    />
-                    
-                );
-            })}
-            
 
-        </Gallery>
-    );
+const ImageGallery = ({ images = [], error, openFullScreenMode }) => {
 
-};
+	return (<>
+		<ul className="container-fluid  row row-cols-3">
+			{images.map(img => {
+				return (
+					<ImageGalleryItem key={img.id} {...img} openFullScreenMode={openFullScreenMode} />
+				)
+			})}
+		</ul>
+		{!!error && <p>{error.message}</p>}
+	</>)
+}
+
 
 ImageGallery.propTypes = {
-    images: PropTypes.arrayOf(
-        PropTypes.shape({
-            id: PropTypes.number.isRequired,
-            webformatURL: PropTypes.string.isRequired,
-            largeImageURL: PropTypes.string.isRequired,
-            tags: PropTypes.string.isRequired,
-        })
-    ),
+	images: PropTypes.array,
+	error: PropTypes.string,
+	openFullScreenMode: PropTypes.func,
 };
+
+export default ImageGallery
