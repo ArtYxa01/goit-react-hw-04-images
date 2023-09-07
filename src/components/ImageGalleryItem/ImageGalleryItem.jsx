@@ -1,23 +1,46 @@
+import { useState } from 'react';
+import { Modal } from 'components/Modal/Modal';
 import PropTypes from 'prop-types';
+import { GalleryItem, Image } from './ImageGalleryItem.styled';
 
-const ImageGalleryItem = ({
-	webformatURL,
-	tags = '',
-	largeImageURL,
-	openFullScreenMode,
-}) => {
-	return (
-		<li className="thumbnail col" onClick={() => openFullScreenMode(largeImageURL, tags)}>
-			<img className='img-thumbnail' src={webformatURL} alt={tags} />
-		</li>
-	);
-};
+export const ImageGalleryItem = ({ webformatURL, tags, largeImageURL }) => {
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+   const toggleModal = () => {
+    setIsModalOpen(prevState => !prevState);
+  };
+  
+  
+
+          return (
+      <>
+        <GalleryItem className="gallery-item">
+          <Image
+            src={webformatURL}
+            alt={tags}
+            width="500"
+            height="210"
+            loading="lazy"
+            onClick={toggleModal}
+          />
+        </GalleryItem>
+
+        {isModalOpen && (
+          <Modal
+            modalImg={largeImageURL}
+            tags={tags}
+            closeModal={toggleModal}
+          />
+        )}
+      
+      </>
+      
+    );
+  }
+  
 
 ImageGalleryItem.propTypes = {
-	webformatURL: PropTypes.string.isRequired,
-	tags: PropTypes.string,
-	largeImageURL: PropTypes.string.isRequired,
-	openFullScreenMode: PropTypes.func.isRequired,
+  webformatURL: PropTypes.string.isRequired,
+  tags: PropTypes.string.isRequired,
+  largeImageURL: PropTypes.string.isRequired,
 };
-
-export default ImageGalleryItem;

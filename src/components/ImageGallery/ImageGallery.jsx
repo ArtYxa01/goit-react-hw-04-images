@@ -1,27 +1,36 @@
-import React from 'react'
-import PropTypes from 'prop-types'
-import ImageGalleryItem from 'components/ImageGalleryItem/ImageGalleryItem';
+import React from 'react';
+import { ImageGalleryItem } from '../ImageGalleryItem/ImageGalleryItem';
+import PropTypes from 'prop-types';
+import { Gallery } from './ImageGallery.styled';
 
+export const ImageGallery = ({ images }) => {
+    return (
+        <Gallery>
+            {images.map(({ id, webformatURL, largeImageURL, tags }) => {
+                return (
+                    <ImageGalleryItem
+                        key={id}
+                        webformatURL={webformatURL}
+                        largeImageURL={largeImageURL}
+                        tags={tags}
+                    />
+                    
+                );
+            })}
+            
 
-const ImageGallery = ({ images = [], error, openFullScreenMode }) => {
+        </Gallery>
+    );
 
-	return (<>
-		<ul className="container-fluid  row row-cols-3">
-			{images.map(img => {
-				return (
-					<ImageGalleryItem key={img.id} {...img} openFullScreenMode={openFullScreenMode} />
-				)
-			})}
-		</ul>
-		{!!error && <p>{error.message}</p>}
-	</>)
-}
-
-
-ImageGallery.propTypes = {
-	images: PropTypes.array,
-	error: PropTypes.string,
-	openFullScreenMode: PropTypes.func,
 };
 
-export default ImageGallery
+ImageGallery.propTypes = {
+    images: PropTypes.arrayOf(
+        PropTypes.shape({
+            id: PropTypes.number.isRequired,
+            webformatURL: PropTypes.string.isRequired,
+            largeImageURL: PropTypes.string.isRequired,
+            tags: PropTypes.string.isRequired,
+        })
+    ),
+};
