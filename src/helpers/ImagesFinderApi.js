@@ -10,7 +10,8 @@ axios.defaults.params = {
 	per_page: 12,
 };
 export const fetchImages = async (query = '', page = 1) => {
-	return await axios.get(`?key=${API_KEY}&q=${query}&page=${page}`)
+	const res = await axios.get(`?key=${API_KEY}&q=${query}&page=${page}`)
+	return res.data
 };
 fetchImages.propTypes = {
 	searchQuery: PropTypes.string,

@@ -23,7 +23,7 @@ export const App = () => {
 
     setLoading(true);
 
-    const fetchData = async () => {
+    /* const fetchData = async () => {
       const { hits, totalHits } = await fetchImages(query, page);
 
       if (totalHits === 0) {
@@ -37,15 +37,25 @@ export const App = () => {
         page === 1 ? totalHits - hits.length : prevTotalHits - hits.length
       );
       setLoading(false);
-    };
+    }; */
 
-    fetchData().catch(error => {
-      toast.error(`Oops! Something went wrong! ${error}`);
-      setLoading(false);
-    });
-  }, [page, query]);
+    fetchImages(query, page)
+    .then (res=> {
+      const {hits, totalHits} = res;
+      if (totalHits === 0) {
+        toast.error ('Nothing was found on your request')
+        setLoading (false)
+        return
+      }
+      setImages(prevImages => (page === 1 ? hits : [...prevImages, ...hits]))
+      setTotalHits(prevTotalHits =>
+        page === 1 ? totalHits - hits.length : prevTotalHits - hits.length)
+    } )
+ .catch(error => {toast.error('Ooops! Something went wrong ${error}')
+  setLoading(false)})
+.finally(() => setLoading(false))}, [page, query])
 
- 
+
   const handleLoadMore = () => {
      setPage(prevPage => prevPage + 1);
   };
